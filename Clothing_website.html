@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HYPEY Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f2ee;
+      --cream: #e8e2d9;
+      --gold: #c9a96e;
+      --dark-gray: #1a1a1a;
+      --mid-gray: #2e2e2e;
+      --text-muted: #888;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    .cursor {
+      width: 10px; height: 10px; background: var(--gold); border-radius: 50%;
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%); transition: transform 0.1s;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px; border: 1px solid rgba(201,169,110,0.5); border-radius: 50%;
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%); transition: all 0.18s ease;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 48px;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.92), transparent);
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif; font-size: 2rem;
+      letter-spacing: 0.25em; color: var(--white); text-decoration: none;
+    }
+    .logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+    .nav-links a {
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--cream); text-decoration: none; opacity: 0.8;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; color: var(--gold); }
+    .nav-cart {
+      background: var(--gold); color: var(--black);
+      padding: 9px 20px; font-size: 0.7rem; letter-spacing: 0.15em;
+      text-transform: uppercase; border: none; cursor: none;
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+      transition: background 0.2s;
+    }
+    .nav-cart:hover { background: var(--cream); }
+
+    /* HERO */
+    .hero {
+      position: relative; height: 100vh; min-height: 700px;
+      display: flex; align-items: flex-end; overflow: hidden;
+    }
+    .hero-bg-img {
+      position: absolute; inset: 0; z-index: 0;
+      background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80') center/cover no-repeat;
+    }
+    .hero-bg-img::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(10,10,10,0.93) 0%, rgba(10,10,10,0.5) 60%, rgba(10,10,10,0.15) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 56px 90px; max-width: 580px;
+    }
+    .hero-tag {
+      font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 20px;
+      opacity: 0; animation: fadeUp 0.8s ease 0.3s forwards;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 8vw, 7.5rem);
+      line-height: 0.92; letter-spacing: 0.04em; color: var(--white);
+      opacity: 0; animation: fadeUp 0.9s ease 0.5s forwards;
+    }
+    .hero-title em {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 0.55em; color: var(--gold); display: block; letter-spacing: 0.12em;
+    }
+    .hero-desc {
+      margin-top: 24px; font-size: 0.88rem; line-height: 1.7;
+      color: rgba(245,242,238,0.65); max-width: 340px;
+      opacity: 0; animation: fadeUp 0.9s ease 0.75s forwards;
+    }
+    .hero-cta {
+      display: flex; gap: 16px; margin-top: 36px;
+      opacity: 0; animation: fadeUp 0.9s ease 0.95s forwards;
+    }
+    .btn-primary {
+      background: var(--gold); color: var(--black);
+      padding: 14px 36px; font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      border: none; cursor: none; font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--cream); transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent; color: var(--white);
+      padding: 14px 36px; font-size: 0.72rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.3); cursor: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-scroll {
+      position: absolute; bottom: 36px; right: 48px; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      opacity: 0; animation: fadeIn 1s ease 1.5s forwards;
+    }
+    .hero-scroll span { font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; writing-mode: vertical-rl; color: rgba(255,255,255,0.4); }
+    .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease infinite; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:0.6; } }
+    @keyframes scrollPulse { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+
+    /* MARQUEE */
+    .marquee-bar { background: var(--gold); color: var(--black); padding: 13px 0; overflow: hidden; white-space: nowrap; }
+    .marquee-track { display: inline-flex; animation: marquee 22s linear infinite; }
+    .marquee-track span { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 0.22em; padding: 0 36px; }
+    .marquee-track span.dot { padding: 0 8px; opacity: 0.5; font-size: 1.1rem; }
+    @keyframes marquee { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+    /* SECTION HEADER */
+    .section-header { text-align: center; padding: 80px 48px 48px; }
+    .section-header .label { font-size: 0.62rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+    .section-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 5vw, 4.5rem); letter-spacing: 0.06em; line-height: 1; }
+    .section-header h2 em { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold); }
+
+    /* PRODUCT GRID */
+    .featured { padding: 0 32px 80px; }
+    .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; max-width: 1400px; margin: 0 auto; }
+    .product-card { position: relative; overflow: hidden; background: var(--dark-gray); cursor: none; }
+    .product-card.tall { grid-row: span 2; }
+    .card-visual { width: 100%; aspect-ratio: 3/4; overflow: hidden; position: relative; }
+    .product-card.tall .card-visual { aspect-ratio: unset; height: 100%; min-height: 600px; }
+    .card-visual img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94); display: block; }
+    .product-card:hover .card-visual img { transform: scale(1.07); }
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.1) 55%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
+    }
+    .card-badge { position: absolute; top: 16px; left: 16px; background: var(--gold); color: var(--black); font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 4px 10px; font-weight: 500; }
+    .card-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .card-sub { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .card-price { font-size: 1.05rem; font-weight: 500; color: var(--gold); }
+    .card-quick-add {
+      position: absolute; bottom: -50px; left: 0; right: 0;
+      background: var(--gold); color: var(--black); text-align: center; padding: 14px;
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500;
+      transition: bottom 0.3s ease; cursor: none;
+    }
+    .product-card:hover .card-quick-add { bottom: 0; }
+
+    /* LOOKBOOK */
+    .lookbook { padding: 0 32px 80px; }
+    .look-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; max-width: 1400px; margin: 0 auto; }
+    .look-card { position: relative; overflow: hidden; cursor: none; aspect-ratio: 2/3; }
+    .look-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; display: block; }
+    .look-card:hover img { transform: scale(1.06); }
+    .look-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.75) 0%, transparent 55%);
+      display: flex; align-items: flex-end; padding: 20px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .look-card:hover .look-overlay { opacity: 1; }
+    .look-label { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; letter-spacing: 0.05em; }
+
+    /* CATEGORIES */
+    .categories { padding: 0 32px 80px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; max-width: 1400px; margin: 0 auto; }
+    .cat-card { position: relative; overflow: hidden; aspect-ratio: 4/3; cursor: none; }
+    .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; display: block; }
+    .cat-card:hover img { transform: scale(1.06); }
+    .cat-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.42); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; transition: background 0.3s; }
+    .cat-card:hover .cat-overlay { background: rgba(0,0,0,0.22); }
+    .cat-name { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.1em; }
+    .cat-count { font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); }
+
+    /* PROMO */
+    .promo-wrap { padding: 0 32px 80px; max-width: 1400px; margin: 0 auto; }
+    .promo { display: grid; grid-template-columns: 1fr 1fr; background: var(--dark-gray); overflow: hidden; }
+    .promo-img { overflow: hidden; }
+    .promo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .promo-text { padding: 64px 56px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .promo-text::before { content: 'HYPEY'; position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 11rem; color: rgba(255,255,255,0.025); bottom: -10px; right: -10px; }
+    .promo-label { font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+    .promo-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 3.5vw, 3.2rem); letter-spacing: 0.05em; line-height: 1; }
+    .promo-title em { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold); }
+    .promo-desc { margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; max-width: 340px; }
+    .promo-code { display: inline-block; border: 1px dashed var(--gold); padding: 12px 28px; font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.2em; color: var(--gold); margin-top: 28px; }
+
+    /* NEWSLETTER */
+    .newsletter { padding: 80px 48px; text-align: center; border-top: 1px solid var(--mid-gray); }
+    .newsletter .label { font-size: 0.62rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+    .newsletter h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: 0.06em; }
+    .newsletter p { margin: 14px auto 36px; max-width: 380px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+    .email-form { display: flex; justify-content: center; max-width: 440px; margin: 0 auto; }
+    .email-form input { flex: 1; background: var(--dark-gray); border: 1px solid var(--mid-gray); border-right: none; padding: 14px 20px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; }
+    .email-form input::placeholder { color: var(--text-muted); }
+    .email-form button { background: var(--gold); color: var(--black); padding: 14px 28px; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; border: none; cursor: none; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+
+    /* FOOTER */
+    footer { background: var(--dark-gray); padding: 60px 48px 32px; border-top: 1px solid var(--mid-gray); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto 48px; }
+    .footer-brand .logo { font-size: 1.6rem; display: inline-block; margin-bottom: 16px; }
+    .footer-brand p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--mid-gray); padding-top: 24px; max-width: 1200px; margin: 0 auto; }
+    .footer-bottom p { font-size: 0.72rem; color: var(--text-muted); }
+    .social-links { display: flex; gap: 16px; }
+    .social-links a { width: 34px; height: 34px; border: 1px solid var(--mid-gray); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--text-muted); text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+    .social-links a:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* CART */
+    .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+    .cart-sidebar { position: fixed; right: -420px; top: 0; bottom: 0; width: 420px; background: var(--dark-gray); z-index: 201; padding: 32px; transition: right 0.4s cubic-bezier(0.25,0.46,0.45,0.94); display: flex; flex-direction: column; }
+    .cart-sidebar.open { right: 0; }
+    .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .cart-header h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.1em; }
+    .cart-close { background: none; border: none; color: var(--white); font-size: 1.4rem; cursor: none; opacity: 0.6; }
+    .cart-close:hover { opacity: 1; }
+    .cart-items { flex: 1; overflow-y: auto; }
+    .cart-empty { text-align: center; padding: 60px 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.1rem; color: var(--text-muted); }
+    .cart-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--mid-gray); }
+    .cart-item-img { width: 72px; height: 90px; overflow: hidden; flex-shrink: 0; }
+    .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-size: 0.9rem; margin-bottom: 4px; }
+    .cart-item-price { font-size: 0.82rem; color: var(--gold); }
+    .cart-item-remove { background: none; border: none; color: var(--text-muted); cursor: none; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; align-self: flex-start; }
+    .cart-item-remove:hover { color: #e05; }
+    .cart-footer { padding-top: 24px; border-top: 1px solid var(--mid-gray); }
+    .cart-total { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 20px; }
+    .cart-total strong { font-size: 1.1rem; color: var(--gold); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: var(--black); padding: 12px 28px; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; z-index: 500; transition: transform 0.4s ease; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 900px) {
+      nav { padding: 18px 24px; }
+      .nav-links { display: none; }
+      .hero-content { padding: 0 24px 70px; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+      .product-card.tall { grid-row: span 1; }
+      .product-card.tall .card-visual { min-height: unset; }
+      .look-grid { grid-template-columns: repeat(2, 1fr); }
+      .cat-grid { grid-template-columns: 1fr 1fr; }
+      .promo { grid-template-columns: 1fr; }
+      .promo-img { height: 300px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .cart-sidebar { width: 100%; right: -100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>Your Bag</h3>
+      <button class="cart-close" onclick="toggleCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">Your bag is empty.</div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><strong id="cartTotal">₹0</strong></div>
+      <button class="btn-primary" style="width:100%;display:block;text-align:center;" onclick="alert('Checkout coming soon!')">Checkout →</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Added to bag</div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="logo">HYP<span>E</span>Y</a>
+    <ul class="nav-links">
+      <li><a href="#shop">New Arrivals</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#looks">Lookbook</a></li>
+      <li><a href="#categories">Collections</a></li>
+    </ul>
+    <button class="nav-cart" onclick="toggleCart()">Bag (<span id="cartCount">0</span>)</button>
+  </nav>
+
+  <!-- HERO — real photo of person in streetwear -->
+  <section class="hero">
+    <div class="hero-bg-img"></div>
+    <div class="hero-content">
+      <p class="hero-tag">New Season Drop — SS 2025</p>
+      <h1 class="hero-title"><em>Wear the</em>Culture</h1>
+      <p class="hero-desc">HYPEY is where streetwear meets craft. Every piece is built for those who move with intention — bold, deliberate, uncommon.</p>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Shop Now</button>
+        <button class="btn-outline" onclick="document.getElementById('looks').scrollIntoView({behavior:'smooth'})">Lookbook</button>
+      </div>
+    </div>
+    <div class="hero-scroll"><div class="scroll-line"></div><span>Scroll</span></div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <span>New Arrivals</span><span class="dot">◆</span>
+      <span>Free Shipping Above ₹1499</span><span class="dot">◆</span>
+      <span>SS 2025 Collection</span><span class="dot">◆</span>
+      <span>Easy Returns</span><span class="dot">◆</span>
+      <span>HYPEY Store</span><span class="dot">◆</span>
+      <span>New Arrivals</span><span class="dot">◆</span>
+      <span>Free Shipping Above ₹1499</span><span class="dot">◆</span>
+      <span>SS 2025 Collection</span><span class="dot">◆</span>
+      <span>Easy Returns</span><span class="dot">◆</span>
+      <span>HYPEY Store</span><span class="dot">◆</span>
+    </div>
+  </div>
+
+  <!-- SHOP -->
+  <section id="shop">
+    <div class="section-header">
+      <p class="label">New Arrivals</p>
+      <h2>Featured <em>Drops</em></h2>
+    </div>
+    <div class="featured">
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </section>
+
+  <!-- LOOKBOOK -->
+  <section id="looks">
+    <div class="section-header">
+      <p class="label">The Edit</p>
+      <h2>Lookbook <em>2025</em></h2>
+    </div>
+    <div class="lookbook">
+      <div class="look-grid">
+        <div class="look-card">
+          <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80" alt="Look 1" loading="lazy"/>
+          <div class="look-overlay"><span class="look-label">Street Edit</span></div>
+        </div>
+        <div class="look-card">
+          <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=600&q=80" alt="Look 2" loading="lazy"/>
+          <div class="look-overlay"><span class="look-label">Monochrome</span></div>
+        </div>
+        <div class="look-card">
+          <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80" alt="Look 3" loading="lazy"/>
+          <div class="look-overlay"><span class="look-label">Layered</span></div>
+        </div>
+        <div class="look-card">
+          <img src="https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80" alt="Look 4" loading="lazy"/>
+          <div class="look-overlay"><span class="look-label">Urban Night</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLLECTIONS -->
+  <section id="categories">
+    <div class="section-header">
+      <p class="label">Browse by type</p>
+      <h2>The <em>Collections</em></h2>
+    </div>
+    <div class="categories">
+      <div class="cat-grid">
+        <div class="cat-card">
+          <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=800&q=80" alt="Jackets" loading="lazy"/>
+          <div class="cat-overlay"><span class="cat-name">Jackets</span><span class="cat-count">14 pieces</span></div>
+        </div>
+        <div class="cat-card">
+          <img src="https://thumbs.dreamstime.com/b/image-shows-rack-clothing-specifically-variety-jackets-sweatshirts-rack-clothes-hanging-rack-397174008.jpg" alt="Hoodies" loading="lazy"/>
+          <div class="cat-overlay"><span class="cat-name">Hoodies</span><span class="cat-count">20 pieces</span></div>
+        </div>
+        <div class="cat-card">
+          <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&q=80" alt="Sets" loading="lazy"/>
+          <div class="cat-overlay"><span class="cat-name">Sets</span><span class="cat-count">8 pieces</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMO BANNER -->
+  <section>
+    <div class="promo-wrap">
+      <div class="promo">
+        <div class="promo-img">
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80" alt="Promo model" loading="lazy"/>
+        </div>
+        <div class="promo-text">
+          <p class="promo-label">Limited Time Offer</p>
+          <h2 class="promo-title">First Order<br><em>20% Off</em></h2>
+          <p class="promo-desc">Sign up and use the code below for an exclusive discount on your first HYPEY purchase. Welcome to the culture.</p>
+          <div class="promo-code">HYPEY20</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter">
+    <p class="label">Stay in the loop</p>
+    <h2>Join the Community</h2>
+    <p>Be the first to know about new drops, exclusive offers, and HYPEY culture.</p>
+    <div class="email-form">
+      <input type="email" placeholder="your@email.com" id="emailInput"/>
+      <button onclick="subscribeEmail()">Subscribe</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">ZIT<span style="color:var(--gold)">S</span>U</a>
+        <p>Built for the bold. Worn by the intentional. HYPEY is more than clothing — it's a statement.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="#">New Arrivals</a></li><li><a href="#">Jackets</a></li>
+          <li><a href="#">Hoodies</a></li><li><a href="#">Sets</a></li><li><a href="#">Accessories</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#">Shipping Policy</a></li><li><a href="#">Returns</a></li>
+          <li><a href="#">Size Guide</a></li><li><a href="#">Track Order</a></li><li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Brand</h4>
+        <ul>
+          <li><a href="#">Our Story</a></li><li><a href="#">Sustainability</a></li>
+          <li><a href="#">Careers</a></li><li><a href="#">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 HYPEY Store. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#">IG</a><a href="#">TW</a><a href="#">PT</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // CURSOR
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+      setTimeout(() => { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }, 60);
+    });
+
+    // CART
+    let cart = [];
+    function toggleCart() {
+      document.getElementById('cartSidebar').classList.toggle('open');
+      document.getElementById('cartOverlay').classList.toggle('open');
+    }
+    function addToCart(p) {
+      const ex = cart.find(i => i.id === p.id);
+      if (ex) ex.qty++; else cart.push({...p, qty:1});
+      renderCart(); showToast('Added to bag');
+    }
+    function removeFromCart(id) { cart = cart.filter(i => i.id !== id); renderCart(); }
+    function renderCart() {
+      const el = document.getElementById('cartItems');
+      const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+      document.getElementById('cartTotal').textContent = '₹' + total.toLocaleString('en-IN');
+      document.getElementById('cartCount').textContent = cart.reduce((s,i) => s+i.qty, 0);
+      if (!cart.length) { el.innerHTML = '<div class="cart-empty">Your bag is empty.</div>'; return; }
+      el.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-img"><img src="${item.img}" alt="${item.name}"/></div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">₹${item.price.toLocaleString('en-IN')} × ${item.qty}</div>
+          </div>
+          <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">Remove</button>
+        </div>`).join('');
+    }
+    function showToast(msg) {
+      const t = document.getElementById('toast'); t.textContent = msg;
+      t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // PRODUCTS with real Unsplash clothing photos
+    const products = [
+      { id:'p1', name:'Onyx Cargo Jacket', sub:'Outerwear', price:3499, badge:'New', tall:true,
+        img:'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=700&q=80' },
+      { id:'p2', name:'Cobalt Pullover Hoodie', sub:'Hoodies', price:1899, badge:'Bestseller',
+        img:'https://images.unsplash.com/photo-1576693239181-317efff553bb?w=800&q=80' },
+      { id:'p3', name:'Monochrome Oversize Tee', sub:'Tops', price:899, badge:null,
+        img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
+      { id:'p4', name:'Shadow Bomber', sub:'Outerwear', price:4299, badge:'Limited',
+        img:'https://images.unsplash.com/photo-1548126032-079a0fb0099d?w=600&q=80' },
+      { id:'p5', name:'Ember Fleece Hoodie', sub:'Hoodies', price:2199, badge:null,
+        img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80' },
+    ];
+
+    function renderProducts() {
+      document.getElementById('productGrid').innerHTML = products.map(p => `
+        <div class="product-card ${p.tall ? 'tall' : ''}">
+          <div class="card-visual">
+            <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+            <div class="card-overlay">
+              ${p.badge ? `<span class="card-badge">${p.badge}</span>` : ''}
+              <div>
+                <div class="card-name">${p.name}</div>
+                <div class="card-sub">${p.sub}</div>
+                <div class="card-price">₹${p.price.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+            <div class="card-quick-add" onclick='addToCart(${JSON.stringify(p)})'>+ Add to Bag</div>
+          </div>
+        </div>`).join('');
+    }
+
+    function subscribeEmail() {
+      const v = document.getElementById('emailInput').value;
+      if (v && v.includes('@')) { showToast('Welcome to HYPEY!'); document.getElementById('emailInput').value = ''; }
+      else showToast('Enter a valid email');
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
